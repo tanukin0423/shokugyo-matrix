@@ -234,19 +234,29 @@ h1{text-align:center;font-size:1.3em;color:#2c3e50;margin-bottom:6px;font-weight
   }
   .print-block {
     page-break-inside:avoid;
-    margin-bottom:20px;
-    padding:10px;
-    border:1px solid #ccc;
-    border-radius:6px;
+    margin-bottom:16px;
+    padding:12px;
+    border-radius:8px;
+    border:1px solid #ddd;
   }
-  .print-block-title {
-    font-size:14px;
-    font-weight:700;
-    margin-bottom:8px;
-    padding-bottom:4px;
-    border-bottom:2px solid #333;
-  }
-  .print-job { font-size:11px; margin:2px 0; }
+  .print-block.hh { background:#d4f7e4 !important; border-color:#2ecc71; -webkit-print-color-adjust:exact; print-color-adjust:exact; }
+  .print-block.hl { background:#fde0e2 !important; border-color:#e74c3c; -webkit-print-color-adjust:exact; print-color-adjust:exact; }
+  .print-block.lh { background:#fff9d0 !important; border-color:#f1c40f; -webkit-print-color-adjust:exact; print-color-adjust:exact; }
+  .print-block.ll { background:#d8eeff !important; border-color:#3498db; -webkit-print-color-adjust:exact; print-color-adjust:exact; }
+  .print-block-title { font-size:13px; font-weight:700; margin-bottom:8px; padding-bottom:6px; border-bottom:1.5px solid rgba(0,0,0,0.15); }
+  .print-block-title.hh { color:#0a5c3a; border-bottom-color:#2ecc71; }
+  .print-block-title.hl { color:#7a2020; border-bottom-color:#e74c3c; }
+  .print-block-title.lh { color:#6b4c00; border-bottom-color:#f1c40f; }
+  .print-block-title.ll { color:#0a3d6b; border-bottom-color:#3498db; }
+  .print-group-name { font-size:10px; font-weight:700; color:#555; border-left:3px solid #aaa; padding-left:5px; margin:6px 0 4px; }
+  .print-job-chip { display:inline-block; font-size:10px; padding:2px 7px; border-radius:10px; margin:2px; }
+  .hh .print-job-chip { background:#c8f5d8; color:#0a5c3a; -webkit-print-color-adjust:exact; print-color-adjust:exact; }
+  .hl .print-job-chip { background:#ffd0d4; color:#7a2020; -webkit-print-color-adjust:exact; print-color-adjust:exact; }
+  .lh .print-job-chip { background:#fff5b0; color:#6b4c00; -webkit-print-color-adjust:exact; print-color-adjust:exact; }
+  .ll .print-job-chip { background:#c8e4ff; color:#0a3d6b; -webkit-print-color-adjust:exact; print-color-adjust:exact; }
+  .print-header { text-align:center; margin-bottom:16px; padding-bottom:10px; border-bottom:2px solid #2d5a27; }
+  .print-header h2 { font-size:16px; color:#2d5a27; margin-bottom:4px; }
+  .print-header p { font-size:10px; color:#888; }
 }
 </style>
 </head>
@@ -605,6 +615,27 @@ cells.forEach(c => {
     document.querySelectorAll('.cell').forEach(el=>el.classList.remove('active'));
     div.classList.add('active');
     panel.className = 'detail-panel show';
+    panel.innerHTML = ''; // 前の表示をクリア
+
+    // 診断から来ていない場合の印刷選択
+    if(shindanRow === -1) {
+      const allCells = document.querySelectorAll('.cell');
+      let clickedIdx = -1;
+      allCells.forEach((cell, i) => { if(cell === div) clickedIdx = i; });
+
+      if(clickedIdx >= 0) {
+        // 選択トグル（複数選択対応）
+        if(selectedBlocks.has(clickedIdx)) {
+          selectedBlocks.delete(clickedIdx);
+          div.classList.remove('adjacent-selected');
+        } else {
+          selectedBlocks.add(clickedIdx);
+          div.classList.add('adjacent-selected');
+        }
+      }
+      document.getElementById('print-panel').classList.add('show');
+      updatePrintPanel(allCells);
+    }
 
     const groupsHtml = c.groups.map(g => {
       const jobsHtml = g.jobs.map(j => {
@@ -778,34 +809,41 @@ function executePrint() {
 
   // 印刷エリアをリセット
   printArea.style.display = 'block';
-  printArea.innerHTML = '<h2 style="text-align:center;margin-bottom:16px;font-size:16px;color:#2d5a27;">🌳 適職診断 - 職業一覧</h2>';
+  const today = new Date().toLocaleDateString('ja-JP');
+  printArea.innerHTML = `
+    <div class="print-header">
+      <h2>🌳 適職診断 - 職業一覧</h2>
+      <p>就活の木 ｜ キャリ爺監修　${today}</p>
+    </div>`;
 
-  // cellsデータから直接取得（非同期不要）
+  // cellsデータから直接取得
   const sortedBlocks = [...selectedBlocks].sort((a,b) => a - b);
 
   sortedBlocks.forEach(idx => {
-    const c = cells[idx]; // JSのcellsデータを直接参照
+    const c = cells[idx];
     const isResult = idx === (shindanRow * 4 + shindanCol);
     const domCell = domCells[idx];
     const label = domCell.querySelector('.cell-label')?.textContent || c.label || '';
     const group = c.q || '';
 
+    // 象限カラークラスを取得
+    const cls = c.cls; // hh/hl/lh/ll
+
     // グループ別に職業を整理
     let jobsHtml = '';
     c.groups.forEach(g => {
-      jobsHtml += `<div style="margin-bottom:8px;">`;
-      jobsHtml += `<div style="font-size:10px;font-weight:700;color:#555;border-left:3px solid #4a8c3f;padding-left:6px;margin-bottom:4px;">${g.name}</div>`;
-      jobsHtml += `<div style="display:flex;flex-wrap:wrap;gap:4px;">`;
+      jobsHtml += `<div class="print-group-name">${g.name}</div>`;
+      jobsHtml += `<div>`;
       g.jobs.forEach(j => {
-        jobsHtml += `<span style="font-size:10px;padding:2px 8px;border-radius:10px;background:#e8f5e3;color:#2d5a27;">${j.name}</span>`;
+        jobsHtml += `<span class="print-job-chip">${j.name}</span>`;
       });
-      jobsHtml += `</div></div>`;
+      jobsHtml += `</div>`;
     });
 
     const block = document.createElement('div');
-    block.className = 'print-block';
+    block.className = `print-block ${cls}`;
     block.innerHTML = `
-      <div class="print-block-title">${isResult ? '★ ' : ''}${label}　<span style="font-size:10px;font-weight:normal;color:#888;">${group}</span></div>
+      <div class="print-block-title ${cls}">${isResult ? '★ ' : ''}${label}　<span style="font-size:10px;font-weight:normal;opacity:0.7;">${group}</span></div>
       ${jobsHtml}
     `;
     printArea.appendChild(block);
@@ -817,21 +855,22 @@ function executePrint() {
 
 function resetPrintSelection() {
   const cells = document.querySelectorAll('.cell');
-  const resultIdx = shindanRow * 4 + shindanCol;
   selectedBlocks.clear();
-  selectedBlocks.add(resultIdx); // 診断結果は常に選択
-  cells.forEach((cell, i) => {
-    cell.classList.remove('adjacent-selected');
-  });
+  cells.forEach(cell => cell.classList.remove('adjacent-selected'));
+  // 診断から来た場合は診断結果を残す
+  if(shindanRow >= 0) {
+    const resultIdx = shindanRow * 4 + shindanCol;
+    selectedBlocks.add(resultIdx);
+  }
   updatePrintPanel(cells);
 }
 </script>
 
 <div id="print-panel">
-  <div class="print-panel-title">🖨️ 印刷するブロックを選択してください</div>
-  <div class="print-panel-desc">
-    ★印のブロック（診断結果）は自動で含まれます。<br>
-    点線のブロックをクリックして追加選択できます。
+  <div class="print-panel-title" id="print-panel-title">🖨️ 印刷するブロックを選択してください</div>
+  <div class="print-panel-desc" id="print-panel-desc">
+    セルをクリックで選択／もう一度クリックで解除。<br>
+    複数選択してまとめて印刷できます。
   </div>
   <div class="print-selected-list" id="print-selected-list"></div>
   <button class="print-btn" onclick="executePrint()">選択したブロックを印刷</button>
