@@ -173,6 +173,68 @@ h1{text-align:center;font-size:1.3em;color:#2c3e50;margin-bottom:6px;font-weight
   pointer-events:none;
 }
 
+/* ===== 職種検索 ===== */
+#search-box {
+  width:100%;max-width:580px;margin:10px auto 0;
+  background:#fff;border-radius:10px;padding:12px 14px;
+  box-shadow:0 2px 10px rgba(0,0,0,0.08);
+}
+.search-row {
+  display:flex;gap:8px;align-items:center;margin-bottom:8px;
+}
+#search-input {
+  flex:1;border:1.5px solid #ddd;border-radius:8px;
+  padding:7px 12px;font-size:0.88em;font-family:inherit;
+  outline:none;transition:border-color 0.15s;
+}
+#search-input:focus { border-color:#3498db; }
+#search-clear {
+  background:none;border:none;font-size:1.1em;cursor:pointer;
+  color:#aaa;padding:4px 6px;line-height:1;
+}
+#search-clear:hover { color:#555; }
+.search-filters {
+  display:flex;flex-wrap:wrap;gap:6px;
+}
+.filter-btn {
+  font-size:0.75em;padding:3px 10px;border-radius:12px;
+  border:1.5px solid #ddd;background:#fff;cursor:pointer;
+  transition:all 0.15s;font-family:inherit;
+}
+.filter-btn:hover { opacity:0.8; }
+.filter-btn.active-hl { background:#ffd0d4;border-color:#e74c3c;color:#7a2020; }
+.filter-btn.active-hh { background:#c8f5d8;border-color:#2ecc71;color:#0a5c3a; }
+.filter-btn.active-ll { background:#c8e4ff;border-color:#3498db;color:#0a3d6b; }
+.filter-btn.active-lh { background:#fff5b0;border-color:#f1c40f;color:#6b4c00; }
+.filter-btn.active-all { background:#2c3e50;border-color:#2c3e50;color:#fff; }
+#search-results {
+  width:100%;max-width:580px;margin:8px auto 0;
+  background:#fff;border-radius:10px;padding:12px 14px;
+  box-shadow:0 2px 10px rgba(0,0,0,0.08);display:none;
+}
+#search-results.show { display:block; }
+.search-result-count {
+  font-size:0.8em;color:#888;margin-bottom:8px;
+}
+.search-result-item {
+  display:flex;align-items:center;gap:8px;
+  padding:5px 0;border-bottom:1px dashed #f0f0f0;
+  font-size:0.83em;
+}
+.search-result-item:last-child { border-bottom:none; }
+.result-cell-label {
+  font-size:0.75em;padding:2px 7px;border-radius:10px;
+  white-space:nowrap;flex-shrink:0;
+}
+.result-job-name { color:#2c3e50;font-weight:500; }
+.result-job-name a { color:inherit;text-decoration:underline;text-underline-offset:2px; }
+.job-chip.search-hit {
+  box-shadow:0 0 0 2.5px #e67e22;
+  transform:scale(1.08);
+  z-index:2;
+  position:relative;
+}
+
 /* 印刷コントロールパネル */
 #print-panel {
   display:none;
@@ -289,6 +351,22 @@ h1{text-align:center;font-size:1.3em;color:#2c3e50;margin-bottom:6px;font-weight
   <div class="legend-item"><div class="legend-dot" style="background:#fff5b0"></div>低目標・高関わり</div>
 </div>
 
+<!-- 職種検索ボックス -->
+<div id="search-box">
+  <div class="search-row">
+    <input id="search-input" type="text" placeholder="🔍 職種名を入力（例：営業、エンジニア）" oninput="doSearch()">
+    <button id="search-clear" onclick="clearSearch()" title="クリア">✕</button>
+  </div>
+  <div class="search-filters">
+    <button class="filter-btn active-all" id="fb-all"   onclick="setFilter('all')">すべて</button>
+    <button class="filter-btn" id="fb-hl" onclick="setFilter('hl')" style="background:#ffd0d4;border-color:#e74c3c;color:#7a2020;">高目標・低関わり</button>
+    <button class="filter-btn" id="fb-hh" onclick="setFilter('hh')" style="background:#c8f5d8;border-color:#2ecc71;color:#0a5c3a;">高目標・高関わり</button>
+    <button class="filter-btn" id="fb-lh" onclick="setFilter('lh')" style="background:#fff5b0;border-color:#f1c40f;color:#6b4c00;">低目標・高関わり</button>
+    <button class="filter-btn" id="fb-ll" onclick="setFilter('ll')" style="background:#c8e4ff;border-color:#3498db;color:#0a3d6b;">低目標・低関わり</button>
+  </div>
+</div>
+<div id="search-results"></div>
+
 <div class="detail-panel" id="detailPanel">
   <div class="hint-box">セルをクリックすると職業一覧が表示されます</div>
 </div>
@@ -303,7 +381,6 @@ const cells = [
         {name:"◎金融アナリスト（ＩＲ広報担当）", url:"https://shigoto.mhlw.go.jp/User/Occupation/Detail/445", video:null, tip:"企業の財務状況を分析し、投資家向けに情報を発信する専門職。数字とロジックで勝負する仕事です。"},
         {name:"◎投資アナリスト", url:"https://shigoto.mhlw.go.jp/User/Occupation/Detail/457", video:null, tip:"株式や債券の価値を評価し、投資戦略を立案する専門職。金融市場の動きを読む力が求められます。"},
         {name:"◎ポートフォリオマネージャー", url:"https://shigoto.mhlw.go.jp/User/Occupation/Detail/470", video:null, tip:"投資家から預かった資産を最適に配分・運用する責任職。高い目標と専門性が問われます。"},
-        {name:"◎ポートフォリオ（ファンド）マネージャー", url:"https://shigoto.mhlw.go.jp/User/Occupation/Detail/470", video:null, tip:"投資家から預かった資産を最適に配分・運用する責任職。高い目標と専門性が問われます。"},
         {name:"〇アクチュアリー", url:"https://shigoto.mhlw.go.jp/User/Occupation/Detail/468", video:null, tip:"確率・統計を用いて保険料や年金を設計する専門家。数理のスペシャリストとして活躍します。"},
       ]},
       { name:"データサイエンス", border:"hl-border", jobs:[
@@ -311,7 +388,6 @@ const cells = [
         {name:"◇データエンジニア", url:"https://shigoto.mhlw.go.jp/User/Occupation/Detail/523", video:null, tip:"膨大なデータを分析できるよう整理・管理し、データサイエンティストをサポートする技術職です。"},
         {name:"◇ＡＩエンジニア", url:"https://shigoto.mhlw.go.jp/User/Occupation/Detail/325", video:null, tip:"AIモデルを開発し、データから学習させて予測や分類を行うエンジニア。今最も注目される職種の一つです。"},
         {name:"◆統計学者", url:null, video:null, tip:"統計的手法を用いてデータの傾向や関係性を分析する専門家。研究機関や大学などで活躍します。"},
-        {name:"◇AIエンジニア", url:"https://shigoto.mhlw.go.jp/User/Occupation/Detail/325", video:null, tip:"AIモデルを開発し、データから学習させて予測や分類を行うエンジニア。今最も注目される職種の一つです。"},
       ]},
     ]
   },
@@ -321,7 +397,6 @@ const cells = [
       { name:"ソフトウェア開発", border:"hl-border", jobs:[
         {name:"〇ソフトウェアエンジニア", url:"https://shigoto.mhlw.go.jp/User/Occupation/Detail/316", video:null, tip:"顧客ニーズに合わせてソフトウェアを設計・開発するエンジニア。現代社会を動かすITの最前線です。"},
         {name:"〇システムエンジニア（ＷＥＢサイト開発）", url:"https://shigoto.mhlw.go.jp/User/Occupation/Detail/314", video:null, tip:"ウェブサイトを設計し開発するエンジニア。デザインからサーバーまで幅広い知識が求められます。"},
-        {name:"〇システムエンジニア（WEB）", url:"https://shigoto.mhlw.go.jp/User/Occupation/Detail/314", video:null, tip:"ウェブサイトを設計し開発するエンジニア。デザインからサーバーまで幅広い知識が求められます。"},
         {name:"〇フルスタックデベロッパー", url:"https://shigoto.mhlw.go.jp/User/Occupation/Detail/312", video:null, tip:"フロントエンドとバックエンドの両方を開発できるエンジニア。幅広いスキルで重宝される存在です。"},
         {name:"〇モバイルアプリ開発者", url:"https://shigoto.mhlw.go.jp/User/Occupation/Detail/317", video:null, tip:"iOSやAndroidのスマホアプリを開発するエンジニア。日常生活に密着したサービスを作る仕事です。"},
         {name:"◇機械学習エンジニア", url:null, video:null, tip:"AIモデルを構築しデータから学習させる技術者。AIエンジニアと近いが機械学習に特化した職種です。"},
@@ -331,7 +406,6 @@ const cells = [
         {name:"〇生産・品質管理技術者", url:"https://shigoto.mhlw.go.jp/User/Occupation/Detail/296", video:null, tip:"製品の品質基準を設定・監視し、改善を指導する技術職。ものづくりの品質を守る重要な役割です。"},
         {name:"◇ソフトウェアテスター", url:"https://shigoto.mhlw.go.jp/User/Occupation/Detail/540", video:null, tip:"ソフトウェアのバグや不具合を特定する検証職。使いやすいシステムを守るための大切な仕事です。"},
         {name:"〇プロダクトテスター", url:null, video:null, tip:"製品の安全性・耐久性・使いやすさを検証する職種。ユーザー目線で品質を守る仕事です。"},
-        {name:"◇ソフトウェアテスター・デバッグ作業", url:"https://shigoto.mhlw.go.jp/User/Occupation/Detail/540", video:null, tip:"ソフトウェアのバグや不具合を特定する検証職。使いやすいシステムを守るための大切な仕事です。"},
         {name:"◇QAアナリスト", url:null, video:null, tip:"品質保証プロセスを分析・改善する専門家。ソフトウェア開発現場などで品質を担保します。"},
         {name:"◇検査技師", url:null, video:null, tip:"製品が仕様や規格に適合しているか確認する技術職。正確さとこだわりが活きる仕事です。"},
       ]},
@@ -405,12 +479,8 @@ const cells = [
         {name:"◆ネットワーク監視スタッフ", url:"https://shigoto.mhlw.go.jp/User/Occupation/Detail/321", video:null, tip:"ネットワークの安定性・安全性を確保する技術職。見えないところで情報インフラを守る仕事です。"},
         {name:"◆ハードウェアメンテナンス", url:"https://shigoto.mhlw.go.jp/User/Occupation/Detail/318", video:null, tip:"PCやサーバーの修理・交換を行う技術職。機器を守ることで職場の業務を止めない仕事です。"},
         {name:"◆バックアップ管理担当", url:null, video:null, tip:"定期的にデータのバックアップを取り管理する情報システム職。万が一に備える縁の下の力持ちです。"},
-        {name:"◆ハードウェアメンテナンススタッフ", url:"https://shigoto.mhlw.go.jp/User/Occupation/Detail/318", video:null, tip:"PCやサーバーの修理・交換を行う技術職。機器を守ることで職場の業務を止めない仕事です。"},
       ]},
       { name:"テクニカルワーク", border:"hl-border", jobs:[
-        {name:"◇食品技術者", url:"https://shigoto.mhlw.go.jp/User/Occupation/Detail/288", video:null, tip:"加工食品の開発・品質管理を行う技術職。安全でおいしい食品を届けるための専門家です。"},
-        {name:"◇機械製品の組み立て・管理スタッフ", url:"https://shigoto.mhlw.go.jp/User/Occupation/Detail/265", video:null, tip:"機械製品の組み立て・品質基準への適合を確認する技術職。精密なものづくりを支える仕事です。"},
-        {name:"◇ＰＣの組み立て・管理スタッフ", url:"https://shigoto.mhlw.go.jp/User/Occupation/Detail/531", video:null, tip:"PCの組み立て・品質基準への適合を確認する技術職。IT機器の品質を守る仕事です。"},
       ]},
     ]
   },
@@ -462,7 +532,6 @@ const cells = [
       { name:"製造・技術系", border:"ll-border", jobs:[
         {name:"◆技術文書作成者", url:null, video:null, tip:"マニュアルや仕様書など技術文書を執筆するテクニカルライター。わかりやすく伝える力が武器になります。"},
         {name:"◆ラボテクニシャン", url:null, video:null, tip:"研究室で実験や分析を実施するラボの技術補助職。科学の現場を縁の下から支える仕事です。"},
-        {name:"◇検査工（食品）", url:"https://shigoto.mhlw.go.jp/User/Occupation/Detail/548", video:null, tip:"食品・製品の安全性・耐久性を検証する検査職。正確さと責任感が求められる大切な仕事です。"},
       ]},
     ]
   },
@@ -477,7 +546,6 @@ const cells = [
       ]},
       { name:"ウェルネス・美容", border:"lh-border", jobs:[
         {name:"◇栄養士", url:"https://shigoto.mhlw.go.jp/User/Occupation/Detail/171", video:null, tip:"個人の健康目標に合わせた食事を提案する専門職。食から健康をサポートするやりがいある仕事です。"},
-        {name:"◇エステティシャン", url:"https://shigoto.mhlw.go.jp/User/Occupation/Detail/117", video:null, tip:"美容ケアを通じて心身のリラックスを提供する美容職。癒しと美しさを届ける仕事です。"},
       ]},
     ]
   },
@@ -504,8 +572,6 @@ const cells = [
         {name:"◆一般事務", url:"https://shigoto.mhlw.go.jp/User/Occupation/Detail/428", video:null, tip:"様々な定型的な事務の仕事。企業活動を多方面からサポートする縁の下の力持ちです。"},
         {name:"◆出荷・受荷事務", url:"https://shigoto.mhlw.go.jp/User/Occupation/Detail/542", video:null, tip:"資材・製品などの受け入れ・検品・保管・発送に関する事務職。物流の要を担う仕事です。"},
         {name:"◆生産・工程管理事務", url:"https://shigoto.mhlw.go.jp/User/Occupation/Detail/437", video:null, tip:"生産・工程管理をする上で生じるデータ入力や書類作成を行う事務職。ものづくりを数字で支えます。"},
-        {name:"◆技術文書作成者", url:null, video:null, tip:"マニュアルや仕様書など技術文書を執筆するテクニカルライター。わかりやすく伝える力が武器になります。"},
-        {name:"◆ラボテクニシャン", url:null, video:null, tip:"研究室で実験や分析を実施するラボの技術補助職。科学の現場を縁の下から支える仕事です。"},
       ]},
     ]
   },
@@ -536,7 +602,7 @@ const cells = [
         {name:"◆特別支援教育の教師", url:"https://shigoto.mhlw.go.jp/User/Occupation/Detail/395", video:null, tip:"特別なニーズを持つ生徒を個別に支援する教育職。一人ひとりに寄り添う専門的な教育の仕事です。"},
         {name:"◆学習支援スタッフ", url:"https://shigoto.mhlw.go.jp/User/Occupation/Detail/242", video:null, tip:"学習困難を抱える生徒を助けるサポート職。できないを「できる」に変える手助けをします。"},
         {name:"◆臨床心理士（スクールカウンセラー）", url:"https://shigoto.mhlw.go.jp/User/Occupation/Detail/411", video:null, tip:"学校で子どもの心をサポートするカウンセラー。不登校・いじめ・家庭問題など幅広い相談に対応します。"},
-        {name:"◇キャリアコンサルタント", url:"https://shigoto.mhlw.go.jp/User/Occupation/Detail/81", video:null, tip:"就職・転職・キャリアに関する相談を支援する専門職。国家資格を持つキャリア支援の専門家です。"},
+        {name:"◇キャリアコンサルタント", url:"https://shigoto.mhlw.go.jp/User/Occupation/Detail/136", video:null, tip:"就職・転職・キャリアに関する相談を支援する専門職。国家資格を持つキャリア支援の専門家です。"},
       ]},
     ]
   },
@@ -705,6 +771,95 @@ cells.forEach(c => {
     }, {passive:false});
   });
 });
+</script>
+
+<script>
+// ===== 職種検索機能 =====
+let currentFilter = 'all';
+
+function setFilter(cls) {
+  currentFilter = cls;
+  ['all','hl','hh','lh','ll'].forEach(f => {
+    const btn = document.getElementById('fb-' + f);
+    if(!btn) return;
+    // activeクラスをリセット
+    btn.classList.remove('active-all','active-hl','active-hh','active-lh','active-ll');
+  });
+  const activeBtn = document.getElementById('fb-' + cls);
+  if(activeBtn) activeBtn.classList.add('active-' + cls);
+  doSearch();
+}
+
+function doSearch() {
+  const q = document.getElementById('search-input').value.trim();
+  const resultsEl = document.getElementById('search-results');
+
+  // ハイライトをリセット
+  document.querySelectorAll('.job-chip').forEach(el => el.classList.remove('search-hit'));
+
+  if(!q && currentFilter === 'all') {
+    resultsEl.classList.remove('show');
+    resultsEl.innerHTML = '';
+    return;
+  }
+
+  const hits = [];
+  cells.forEach((c, ci) => {
+    if(currentFilter !== 'all' && c.cls !== currentFilter) return;
+    c.groups.forEach(g => {
+      g.jobs.forEach(j => {
+        if(!q || j.name.replace(/[◎〇◇◆]/g,'').toLowerCase().includes(q.toLowerCase())) {
+          hits.push({ cellIdx: ci, cellLabel: c.label, cls: c.cls, job: j });
+        }
+      });
+    });
+  });
+
+  // chip要素にハイライト（detailパネルが開いている場合）
+  document.querySelectorAll('.job-chip').forEach(chip => {
+    const chipText = chip.textContent.replace(/[◎〇◇◆]/g,'').trim();
+    if(!q || chipText.includes(q)) {
+      const parentCell = chip.closest ? null : null;
+      chip.classList.add('search-hit');
+    }
+  });
+
+  // 結果リスト表示
+  if(hits.length === 0) {
+    resultsEl.innerHTML = '<div class="search-result-count">「' + q + '」に一致する職種が見つかりませんでした</div>';
+    resultsEl.classList.add('show');
+    return;
+  }
+
+  const clsLabel = {hh:'高目標・高関わり', hl:'高目標・低関わり', lh:'低目標・高関わり', ll:'低目標・低関わり'};
+  const clsBg   = {hh:'#c8f5d8', hl:'#ffd0d4', lh:'#fff5b0', ll:'#c8e4ff'};
+  const clsColor= {hh:'#0a5c3a', hl:'#7a2020', lh:'#6b4c00', ll:'#0a3d6b'};
+
+  let html = `<div class="search-result-count">🔍 ${hits.length}件の職種が見つかりました</div>`;
+  hits.forEach(h => {
+    const nameClean = h.job.name.replace(/^[◎〇◇◆]/,'');
+    const linkHtml = h.job.url
+      ? `<a href="${h.job.url}" target="_blank" rel="noopener">${nameClean}</a>`
+      : nameClean;
+    html += `
+      <div class="search-result-item">
+        <span class="result-cell-label" style="background:${clsBg[h.cls]};color:${clsColor[h.cls]};">${h.cellLabel}</span>
+        <span class="result-job-name">${linkHtml}</span>
+      </div>`;
+  });
+  resultsEl.innerHTML = html;
+  resultsEl.classList.add('show');
+}
+
+function clearSearch() {
+  document.getElementById('search-input').value = '';
+  currentFilter = 'all';
+  setFilter('all');
+  document.querySelectorAll('.job-chip').forEach(el => el.classList.remove('search-hit'));
+  const resultsEl = document.getElementById('search-results');
+  resultsEl.classList.remove('show');
+  resultsEl.innerHTML = '';
+}
 </script>
 
 <script>
