@@ -191,6 +191,57 @@ body{
 }
 .tool-card:nth-child(2){animation-delay:0.1s;}
 .tool-card:nth-child(3){animation-delay:0.2s;}
+
+/* QRカード */
+.qr-wrap{
+  background:#fff;border-radius:16px;
+  padding:20px;
+  box-shadow:0 2px 16px rgba(45,90,39,0.08);
+  margin-bottom:16px;
+}
+.qr-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-top:14px;}
+@media(max-width:480px){.qr-grid{grid-template-columns:1fr;}}
+.qr-card{border-radius:12px;padding:16px;text-align:center;border:2px solid #c8dfc2;}
+.qr-card.green{border-color:#4a8c3f;background:#e8f5e3;}
+.qr-card.teal{border-color:#0F6E56;background:#E1F5EE;}
+.qr-card-title{font-size:0.88rem;font-weight:700;margin-bottom:4px;}
+.qr-card.green .qr-card-title{color:#2d5a27;}
+.qr-card.teal .qr-card-title{color:#0F6E56;}
+.qr-card-desc{font-size:0.72rem;color:#777;line-height:1.6;margin-bottom:10px;}
+.qr-img{
+  background:#fff;border-radius:10px;padding:8px;
+  margin:0 auto 10px;width:100%;max-width:176px;
+  box-shadow:0 1px 6px rgba(0,0,0,0.08);
+  display:block;
+}
+.qr-step{font-size:0.78rem;font-weight:700;margin-bottom:4px;}
+.qr-card.green .qr-step{color:#2d5a27;}
+.qr-card.teal .qr-step{color:#0F6E56;}
+.qr-url{
+  font-size:0.6rem;color:#999;
+  word-break:break-all;
+  background:#f5f5f5;border-radius:6px;
+  padding:4px 6px;margin-top:4px;
+}
+.memo-box{
+  margin-top:14px;
+  background:#e8f5e3;border-radius:10px;
+  padding:12px 14px;
+  font-size:0.78rem;color:#3a6a2a;line-height:1.9;
+}
+.memo-title{font-weight:700;color:#2d5a27;margin-bottom:4px;}
+
+/* 印刷時はQRセクションだけ表示 */
+@media print{
+  body *{visibility:hidden!important;}
+  .qr-print-area,
+  .qr-print-area *{visibility:visible!important;}
+  .qr-print-area{
+    position:fixed;top:0;left:0;
+    width:100%;padding:20px;
+    background:#fff;
+  }
+}
 </style>
 </head>
 <body>
@@ -317,7 +368,53 @@ body{
     片方だけでも使えますが、連携機能（赤枠・印刷）はセットで使うと動作します。
   </div>
 
-  <div class="footer">
+  
+  <div class="section-label">📱 配布用カード（QRコード付き）</div>
+
+  <div class="qr-wrap qr-print-area">
+    <div style="font-size:0.85rem;font-weight:700;color:var(--green-dark);margin-bottom:4px;">🌳 学生配布用｜QRコードカード</div>
+    <div style="font-size:0.75rem;color:var(--muted);line-height:1.6;">
+      相談室で時間がないときに「家でやってみて！」と手渡せるカードです。印刷してA4またはA5で配布してください。
+    </div>
+
+    <div class="qr-grid">
+
+      <div class="qr-card green">
+        <div class="qr-card-title">🧭 まず診断を受けてみよう</div>
+        <div class="qr-card-desc">30問に答えると<br>自分の適職ゾーンがわかる！</div>
+        <img class="qr-img" src="https://api.qrserver.com/v1/create-qr-code/?size=160x160&data=https://tanukin0423.github.io/shokugyo-matrix/shindan_ver14.html&color=2d5a27&bgcolor=ffffff" alt="診断QRコード">
+        <div class="qr-step">Step 1｜診断ツール</div>
+        <div class="qr-url">https://tanukin0423.github.io/shokugyo-matrix/shindan_ver14.html</div>
+      </div>
+
+      <div class="qr-card teal">
+        <div class="qr-card-title">🗺️ 職業マトリクスを見てみよう</div>
+        <div class="qr-card-desc">118職種を16ゾーンで分類<br>気になる職業をのぞいてみよう！</div>
+        <img class="qr-img" src="https://api.qrserver.com/v1/create-qr-code/?size=160x160&data=https://tanukin0423.github.io/shokugyo-matrix/jobmatrix16v4.html&color=0F6E56&bgcolor=ffffff" alt="マトリクスQRコード">
+        <div class="qr-step">Step 2｜職業マトリクス</div>
+        <div class="qr-url">https://tanukin0423.github.io/shokugyo-matrix/jobmatrix16v4.html</div>
+      </div>
+
+    </div>
+
+    <div class="memo-box">
+      <div class="memo-title">📝 キャリ爺からひとこと</div>
+      🌱 まず「Step 1の診断」を受けてみてください。<br>
+      📊 結果が出たら「Step 2のマトリクス」に自動でジャンプします。<br>
+      🖨️ 気になる職業群は印刷して、じっくり考えてみよう！<br>
+      💬 次の相談のときに、一緒に見てみましょう。
+    </div>
+
+    <div style="text-align:center;margin-top:14px;">
+      <button onclick="window.print()" style="
+        background:var(--green-dark);color:#fff;
+        border:none;border-radius:10px;
+        padding:10px 28px;font-size:0.82rem;font-weight:700;
+        cursor:pointer;font-family:inherit;
+      ">🖨️ このカードを印刷する</button>
+    </div>
+  </div>
+<div class="footer">
     🌱 就活の木<br>
     <span class="footer-name">就活コンサルタント「キャリ爺」監修</span><br>
     キャリアコンサルタント技能士2級<br>
