@@ -79,6 +79,23 @@ h1{text-align:center;font-size:1.3em;color:#2c3e50;margin-bottom:6px;font-weight
 .detail-note{font-size:0.75em;color:#aaa;margin-top:8px;padding-top:8px;border-top:1px dashed #eee;}
 .hint-box{text-align:center;padding:20px;color:#bbb;font-size:0.85em;}
 
+/* フッター著作権 */
+.copyright-footer {
+  width:100%;max-width:580px;
+  text-align:center;
+  font-size:0.75em;
+  color:#aaa;
+  margin-top:20px;
+  padding:10px 0 18px;
+  border-top:1px solid #e0e0e0;
+  line-height:1.8;
+}
+.copyright-footer a {
+  color:#aaa;
+  text-decoration:underline;
+  text-underline-offset:2px;
+}
+
 @media(max-width:600px){
   .matrix-outer,.col-labels,.grid-outer,.x-label{max-width:100%;}
   .y-label{display:none;}
@@ -1032,5 +1049,22 @@ function resetPrintSelection() {
   <button class="print-btn secondary" onclick="resetPrintSelection()">選択をリセット</button>
 </div>
 <div id="print-area" style="display:none;"></div>
+
+
+
+<footer style="
+  width:100%;
+  text-align:center;
+  font-size:0.75em;
+  color:#aaa;
+  margin-top:24px;
+  padding:12px 0 20px;
+  border-top:1px solid #e0e0e0;
+  line-height:2;
+  font-family:'Noto Sans JP',sans-serif;
+">
+  © 2025 就活の木　本ツールの無断複製・転用・二次配布を禁じます。<br>
+  職業情報リンク先：<a href="https://shigoto.mhlw.go.jp/User/" target="_blank" rel="noopener" style="color:#aaa;">job tag（職業情報提供サイト）</a>（厚生労働省）／出典表記に基づきリンク利用
+</footer>
 </body>
 </html>
