@@ -244,23 +244,45 @@ body{
 
   <div class="section-label">🧰 ツールを開く</div>
 
-  <a class="tool-card" href="shindan_ver14.html">
-    <div class="tool-icon green">🧭</div>
-    <div class="tool-body">
-      <div class="tool-name">Step 1｜16分割マトリクス診断</div>
-      <div class="tool-desc">30問の質問に答えて、自分の座標を見つける。診断結果から職業マトリクスへ自動でジャンプします。</div>
-    </div>
-    <div class="tool-badge">🚪 入口</div>
-  </a>
+  <!-- メインボタン2つ -->
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:16px;">
 
-  <a class="tool-card" href="jobmatrix16v4.html">
-    <div class="tool-icon green">🌿</div>
-    <div class="tool-body">
-      <div class="tool-name">Step 2｜職業マトリクス 16分割</div>
-      <div class="tool-desc">118職種を16ゾーンに分類。jobtag（厚生労働省）へのリンク・仕事の説明・印刷機能付き。</div>
-    </div>
-    <div class="tool-badge">🎯 出口</div>
-  </a>
+    <a href="shindan_ver14.html" style="
+      display:flex;flex-direction:column;align-items:center;justify-content:center;
+      background:var(--green-dark);color:#fff;
+      border-radius:16px;padding:24px 16px;
+      text-decoration:none;
+      box-shadow:0 4px 20px rgba(45,90,39,0.25);
+      transition:all 0.18s;
+      text-align:center;
+      min-height:140px;
+    " onmouseover="this.style.transform='translateY(-3px)';this.style.boxShadow='0 8px 28px rgba(45,90,39,0.35)'"
+       onmouseout="this.style.transform='';this.style.boxShadow='0 4px 20px rgba(45,90,39,0.25)'">
+      <div style="font-size:2.4rem;margin-bottom:10px;">🧭</div>
+      <div style="font-size:0.95rem;font-weight:700;margin-bottom:6px;">まず診断を受ける</div>
+      <div style="font-size:0.72rem;opacity:0.85;line-height:1.5;">30問に答えて<br>自分の座標を見つける</div>
+      <div style="margin-top:12px;font-size:0.7rem;background:rgba(255,255,255,0.2);padding:3px 12px;border-radius:10px;">Step 1 →</div>
+    </a>
+
+    <a href="jobmatrix16v4.html" style="
+      display:flex;flex-direction:column;align-items:center;justify-content:center;
+      background:#fff;color:var(--green-dark);
+      border:2.5px solid var(--green-mid);
+      border-radius:16px;padding:24px 16px;
+      text-decoration:none;
+      box-shadow:0 4px 20px rgba(45,90,39,0.1);
+      transition:all 0.18s;
+      text-align:center;
+      min-height:140px;
+    " onmouseover="this.style.transform='translateY(-3px)';this.style.background='var(--green-light)'"
+       onmouseout="this.style.transform='';this.style.background='#fff'">
+      <div style="font-size:2.4rem;margin-bottom:10px;">🗺️</div>
+      <div style="font-size:0.95rem;font-weight:700;margin-bottom:6px;">職業マトリクスを見る</div>
+      <div style="font-size:0.72rem;color:var(--muted);line-height:1.5;">118職種を16ゾーンで<br>直接のぞいてみる</div>
+      <div style="margin-top:12px;font-size:0.7rem;background:var(--green-light);color:var(--green-dark);padding:3px 12px;border-radius:10px;">Step 2 →</div>
+    </a>
+
+  </div>
 
   <div class="section-label">🌟 このツールの特徴</div>
 
