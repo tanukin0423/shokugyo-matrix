@@ -143,6 +143,48 @@ h1{text-align:center;font-size:1.3em;color:#2c3e50;margin-bottom:6px;font-weight
 .tooltip-video{display:block;margin-top:5px;padding-top:5px;border-top:1px solid rgba(255,255,255,0.25);font-size:0.9em;color:#a8d8ff;letter-spacing:0.02em;}
 .tooltip-video a{color:#a8d8ff;text-decoration:underline;pointer-events:all;}
 
+/* ===== 補正ダイアログ ===== */
+#hosei-overlay {
+  position:fixed;inset:0;background:rgba(0,0,0,0.55);z-index:9000;
+  display:flex;align-items:center;justify-content:center;padding:16px;
+}
+#hosei-dialog {
+  background:#fff;border-radius:16px;padding:24px 20px;max-width:440px;width:100%;
+  box-shadow:0 8px 32px rgba(0,0,0,0.2);
+}
+.hosei-title {
+  font-size:1.05em;font-weight:700;color:#2c3e50;text-align:center;margin-bottom:6px;
+}
+.hosei-sub {
+  font-size:0.8em;color:#888;text-align:center;margin-bottom:18px;line-height:1.6;
+}
+.hosei-question {
+  font-size:0.9em;font-weight:700;color:#444;margin-bottom:10px;
+  background:#f5f7fa;border-radius:8px;padding:10px 12px;border-left:4px solid #3498db;
+}
+.hosei-btns {
+  display:flex;flex-direction:column;gap:8px;margin-bottom:16px;
+}
+.hosei-btn {
+  padding:10px 14px;border-radius:10px;border:2px solid #e0e0e0;
+  background:#fafafa;font-size:0.88em;cursor:pointer;text-align:left;
+  transition:all 0.15s;color:#333;font-family:'Noto Sans JP',sans-serif;
+}
+.hosei-btn:hover { background:#eef6ff;border-color:#3498db; }
+.hosei-btn.selected { background:#d6eeff;border-color:#2980b9;font-weight:700; }
+.hosei-step { font-size:0.72em;color:#aaa;text-align:center;margin-bottom:4px; }
+.hosei-next-btn {
+  width:100%;padding:11px;border-radius:10px;border:none;
+  background:linear-gradient(135deg,#2980b9,#3498db);
+  color:#fff;font-size:0.9em;font-weight:700;cursor:pointer;
+  font-family:'Noto Sans JP',sans-serif;margin-top:4px;
+}
+.hosei-next-btn:disabled { background:#ccc;cursor:default; }
+.hosei-skip {
+  display:block;text-align:center;font-size:0.78em;color:#bbb;
+  margin-top:10px;cursor:pointer;text-decoration:underline;
+}
+
 /* ===== 診断結果・隣接セル・印刷 ===== */
 .cell.shindan-result {
   border:3px solid #e74c3c !important;
@@ -884,19 +926,151 @@ function clearSearch() {
 let shindanRow = -1, shindanCol = -1;
 let selectedBlocks = new Set(); // 印刷選択中のセルインデックス
 
+// ===== 補正ダイアログ =====
+let hoseiFinalRow = -1, hoseiFinalCol = -1;
+let hoseiBaseRow = -1, hoseiBaseCol = -1;
+let hoseiStep = 1;
+let hoseiQ1 = null, hoseiQ2 = null;
+
 // URLパラメータから診断結果を受け取る
 (function(){
   const params = new URLSearchParams(window.location.search);
   const row = parseInt(params.get('row'));
   const col = parseInt(params.get('col'));
   if(isNaN(row) || isNaN(col)) return;
+  hoseiBaseRow = row;
+  hoseiBaseCol = col;
   shindanRow = row;
   shindanCol = col;
 
   setTimeout(() => {
-    initShindanHighlight(row, col);
-  }, 300);
+    showHoseiDialog(row, col);
+  }, 400);
 })();
+
+function showHoseiDialog(row, col) {
+  const overlay = document.createElement('div');
+  overlay.id = 'hosei-overlay';
+  overlay.innerHTML = `
+    <div id="hosei-dialog">
+      <div class="hosei-title">🌱 診断結果を確認します</div>
+      <div class="hosei-sub">2つの質問に答えると、あなたの特性をより正確に反映した結果にシフトできます。</div>
+      <div class="hosei-step" id="hosei-step-label">質問 1 / 2</div>
+      <div class="hosei-question" id="hosei-q-text">
+        アルバイトや学校生活で、<strong>人と関わる場面</strong>（接客・グループワーク・部活等）について、あなたはどう感じますか？
+      </div>
+      <div class="hosei-btns" id="hosei-btn-area">
+        <button class="hosei-btn" onclick="selectHosei(1,'avoid')">😟　できれば避けたい・苦手意識がある</button>
+        <button class="hosei-btn" onclick="selectHosei(1,'neutral')">😐　どちらともいえない・場合による</button>
+        <button class="hosei-btn" onclick="selectHosei(1,'like')">😊　むしろ好き・あまり苦にならない</button>
+      </div>
+      <button class="hosei-next-btn" id="hosei-next-btn" onclick="hoseiNext()" disabled>次へ →</button>
+      <span class="hosei-skip" onclick="skipHosei()">補正せずそのまま結果を見る</span>
+    </div>
+  `;
+  document.body.appendChild(overlay);
+}
+
+function selectHosei(step, val) {
+  if(step === 1) hoseiQ1 = val;
+  else hoseiQ2 = val;
+  document.querySelectorAll('.hosei-btn').forEach(b => b.classList.remove('selected'));
+  event.target.classList.add('selected');
+  document.getElementById('hosei-next-btn').disabled = false;
+}
+
+function hoseiNext() {
+  if(hoseiStep === 1) {
+    // Q2へ
+    hoseiStep = 2;
+    document.getElementById('hosei-step-label').textContent = '質問 2 / 2';
+    document.getElementById('hosei-q-text').innerHTML = `
+      数字目標がある代わりに、<strong>頑張りが給与・評価に直結する仕事</strong>（営業・販売・技術職など）についてはどう思いますか？
+    `;
+    document.getElementById('hosei-btn-area').innerHTML = `
+      <button class="hosei-btn" onclick="selectHosei(2,'avoid')">😟　やっぱり数字で追われるのは嫌だ</button>
+      <button class="hosei-btn" onclick="selectHosei(2,'neutral')">😐　給与に反映されるならまあいいかも</button>
+      <button class="hosei-btn" onclick="selectHosei(2,'like')">😊　評価が明確なのはむしろやる気が出る</button>
+      <button class="hosei-btn" onclick="selectHosei(2,'fired')" style="border-color:#e67e22;background:#fff8f0;">💪　全然OK！目標があった方が燃えるタイプ（部活・スポーツ経験あり等）</button>
+    `;
+    document.getElementById('hosei-next-btn').textContent = '結果を見る →';
+    document.getElementById('hosei-next-btn').disabled = true;
+  } else {
+    // 補正計算して結果表示
+    applyHosei();
+  }
+}
+
+function applyHosei() {
+  let row = hoseiBaseRow;
+  let col = hoseiBaseCol;
+
+  // 横軸補正（対人：右＝積極的関与）
+  if(hoseiQ1 === 'like' && col < 3) col += 1;
+  else if(hoseiQ1 === 'avoid' && col > 0) col -= 1;
+
+  // 縦軸補正（目標管理：上＝成果志向）
+  if(hoseiQ2 === 'fired') {
+    // 💪全然OK → 最大2マス上シフト
+    if(row >= 2) row -= 2;
+    else if(row === 1) row -= 1;
+  } else if(hoseiQ2 === 'like' && row > 0) {
+    row -= 1;
+  } else if(hoseiQ2 === 'neutral' && hoseiQ1 === 'like' && row > 0) {
+    row -= 1;
+  }
+
+  // 補正量を判定メッセージに反映
+  const shifted = (row !== hoseiBaseRow || col !== hoseiBaseCol);
+  hoseiFinalRow = row;
+  hoseiFinalCol = col;
+  shindanRow = row;
+  shindanCol = col;
+
+  // ダイアログを閉じる
+  document.getElementById('hosei-overlay').remove();
+
+  // 補正メッセージ用バナー（後でinitShindanHighlightのバナーに上書きされないよう先にフラグ）
+  window._hoseiShifted = shifted;
+  window._hoseiBaseRow = hoseiBaseRow;
+  window._hoseiBaseCol = hoseiBaseCol;
+
+  setTimeout(() => {
+    initShindanHighlight(row, col);
+    // 補正バナーを差し替え
+    const banner = document.getElementById('shindan-banner');
+    if(banner) {
+      if(shifted) {
+        const isFired = hoseiQ2 === 'fired';
+        banner.style.background = isFired
+          ? 'linear-gradient(135deg,#e67e22,#f39c12)'
+          : 'linear-gradient(135deg,#27ae60,#2ecc71)';
+        banner.innerHTML = isFired ? `
+          💪 <strong>チャレンジ補正後の適職診断結果</strong>にジャンプしました<br>
+          <span style="font-size:0.88em;opacity:0.9">目標志向・打たれ強さを反映して上方シフトしました</span><br>
+          <span style="font-size:0.82em;opacity:0.75">★赤枠＝補正後の結果　どのブロックもクリックで印刷選択できます</span>
+        ` : `
+          🔄 <strong>補正後の適職診断結果</strong>にジャンプしました<br>
+          <span style="font-size:0.88em;opacity:0.9">あなたの回答をもとに、より等身大の位置に調整しました</span><br>
+          <span style="font-size:0.82em;opacity:0.75">★赤枠＝補正後の結果　どのブロックもクリックで印刷選択できます</span>
+        `;
+      } else {
+        banner.innerHTML = `
+          🎯 <strong>適職診断の結果</strong>からジャンプしました<br>
+          <span style="font-size:0.88em;opacity:0.9">補正なし・診断の通りの位置です</span><br>
+          <span style="font-size:0.82em;opacity:0.75">★赤枠＝あなたの診断結果　どのブロックもクリックで印刷選択できます</span>
+        `;
+      }
+    }
+  }, 300);
+}
+
+function skipHosei() {
+  document.getElementById('hosei-overlay').remove();
+  setTimeout(() => {
+    initShindanHighlight(hoseiBaseRow, hoseiBaseCol);
+  }, 200);
+}
 
 function initShindanHighlight(row, col) {
   const cells = document.querySelectorAll('.cell');
@@ -907,7 +1081,7 @@ function initShindanHighlight(row, col) {
   cells[idx].classList.add('shindan-result');
   selectedBlocks.add(idx); // 診断結果は自動で印刷対象
 
-  // 隣接セル（上下左右＋斜め）を点線で囲む
+  // 隣接セル（上下左右＋斜め）を点線で囲む（視覚ガイドとして残す）
   const adjOffsets = [
     [-1,-1],[-1,0],[-1,1],
     [0,-1],        [0,1],
@@ -917,14 +1091,17 @@ function initShindanHighlight(row, col) {
     const ar = row + dr;
     const ac = col + dc;
     if(ar >= 0 && ar < 4 && ac >= 0 && ac < 4) {
-      const adjIdx = ar * 4 + ac;
-      cells[adjIdx].classList.add('adjacent');
-      // 隣接セルクリックで印刷選択ON/OFF
-      cells[adjIdx].addEventListener('click', (e) => {
-        e.stopPropagation();
-        toggleAdjacent(adjIdx, cells[adjIdx]);
-      }, true);
+      cells[ar * 4 + ac].classList.add('adjacent');
     }
+  });
+
+  // 全セルでクリック→印刷選択ON/OFF（診断結果セルは常に対象）
+  cells.forEach((cell, i) => {
+    if(i === idx) return;
+    cell.addEventListener('click', (e) => {
+      e.stopPropagation();
+      toggleAdjacent(i, cell);
+    }, true);
   });
 
   // スクロール
@@ -941,7 +1118,7 @@ function initShindanHighlight(row, col) {
   `;
   banner.innerHTML = `
     🎯 <strong>適職診断の結果</strong>からジャンプしました<br>
-    <span style="font-size:0.9em;opacity:0.9">★赤枠＝あなたの診断結果　点線＝隣接ブロック（クリックで印刷選択）</span>
+    <span style="font-size:0.9em;opacity:0.9">★赤枠＝あなたの診断結果　点線＝隣接ブロック　どのブロックもクリックで印刷選択できます</span>
   `;
   const topNote = document.querySelector('.top-note');
   if(topNote) topNote.parentNode.insertBefore(banner, topNote);
