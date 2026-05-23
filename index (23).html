@@ -1,0 +1,513 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>職業マトリクス16分割 | 就活の木</title>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@300;400;500;700&family=Noto+Serif+JP:wght@400;700&display=swap" rel="stylesheet">
+<style>
+:root {
+  --green-dark:#2d5a27;
+  --green-mid:#4a8c3f;
+  --green-light:#e8f5e3;
+  --green-bg:#f3faf0;
+  --bark:#6b4c2a;
+  --text:#2a2a2a;
+  --muted:#777;
+  --border:#c8dfc2;
+  --red:#c0392b;
+  --orange:#e67e22;
+  --blue:#185FA5;
+}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{
+  font-family:'Noto Sans JP',sans-serif;
+  background:var(--green-bg);
+  color:var(--text);
+  min-height:100vh;
+  padding:0 0 60px;
+}
+
+/* ヘッダー */
+.hero{
+  background:linear-gradient(160deg, var(--green-dark) 0%, #3a7a30 60%, var(--green-mid) 100%);
+  color:#fff;
+  padding:48px 24px 40px;
+  text-align:center;
+  position:relative;
+  overflow:hidden;
+}
+.hero::before{
+  content:'';
+  position:absolute;
+  inset:0;
+  background:url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23ffffff' fill-opacity='0.04'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
+}
+.hero-tree{font-size:3.5rem;margin-bottom:8px;position:relative;}
+.hero-title{
+  font-family:'Noto Serif JP',serif;
+  font-size:1.5rem;
+  font-weight:700;
+  letter-spacing:0.05em;
+  margin-bottom:6px;
+  position:relative;
+}
+.hero-sub{
+  font-size:0.8rem;
+  opacity:0.8;
+  margin-bottom:20px;
+  position:relative;
+}
+.hero-desc{
+  font-size:0.88rem;
+  line-height:1.8;
+  opacity:0.92;
+  max-width:480px;
+  margin:0 auto;
+  position:relative;
+}
+
+/* メインコンテンツ */
+.container{max-width:640px;margin:0 auto;padding:0 16px;}
+
+/* セクションラベル */
+.section-label{
+  display:flex;align-items:center;gap:8px;
+  font-size:0.7rem;font-weight:700;color:var(--muted);
+  letter-spacing:0.1em;text-transform:uppercase;
+  margin:28px 0 12px;
+}
+.section-label::after{content:'';flex:1;height:1px;background:var(--border);}
+
+/* 手順カード */
+.steps{
+  background:#fff;
+  border-radius:16px;
+  padding:20px;
+  box-shadow:0 2px 16px rgba(45,90,39,0.08);
+  margin-bottom:16px;
+}
+.step{
+  display:flex;gap:14px;align-items:flex-start;
+  padding:12px 0;
+  border-bottom:1px solid var(--green-light);
+}
+.step:last-child{border-bottom:none;}
+.step-num{
+  width:32px;height:32px;border-radius:50%;
+  background:var(--green-dark);color:#fff;
+  display:flex;align-items:center;justify-content:center;
+  font-size:0.85rem;font-weight:700;flex-shrink:0;
+}
+.step-body{}
+.step-title{font-size:0.9rem;font-weight:700;color:var(--green-dark);margin-bottom:3px;}
+.step-desc{font-size:0.78rem;color:var(--muted);line-height:1.6;}
+
+/* ツールボタン */
+.tool-card{
+  display:flex;align-items:center;gap:14px;
+  background:#fff;
+  border-radius:14px;
+  padding:16px;
+  text-decoration:none;
+  border:2px solid var(--border);
+  box-shadow:0 2px 12px rgba(45,90,39,0.07);
+  transition:all 0.18s;
+  margin-bottom:10px;
+}
+.tool-card:hover{
+  transform:translateY(-2px);
+  box-shadow:0 6px 20px rgba(45,90,39,0.14);
+  border-color:var(--green-mid);
+  background:var(--green-light);
+}
+.tool-icon{
+  width:48px;height:48px;border-radius:12px;
+  display:flex;align-items:center;justify-content:center;
+  font-size:1.5rem;flex-shrink:0;
+}
+.tool-icon.green{background:var(--green-light);}
+.tool-icon.red{background:#fdecea;}
+.tool-icon.orange{background:#fef3e2;}
+.tool-body{flex:1;}
+.tool-name{font-size:0.95rem;font-weight:700;color:var(--text);margin-bottom:3px;}
+.tool-desc{font-size:0.75rem;color:var(--muted);line-height:1.5;}
+.tool-badge{
+  font-size:0.65rem;font-weight:700;
+  padding:2px 8px;border-radius:10px;
+  background:var(--green-dark);color:#fff;
+  flex-shrink:0;
+}
+
+/* 注意書き */
+.notice{
+  background:#fff8f0;
+  border:1.5px solid #f0d9b5;
+  border-radius:12px;
+  padding:14px 16px;
+  font-size:0.78rem;
+  color:#7a5a20;
+  line-height:1.7;
+  margin-bottom:16px;
+}
+.notice-title{font-weight:700;margin-bottom:4px;font-size:0.82rem;}
+
+/* 特徴リスト */
+.features{
+  background:#fff;
+  border-radius:16px;
+  padding:18px 20px;
+  box-shadow:0 2px 16px rgba(45,90,39,0.08);
+  margin-bottom:16px;
+}
+.feature-item{
+  display:flex;gap:10px;align-items:flex-start;
+  padding:8px 0;
+  border-bottom:1px solid var(--green-light);
+  font-size:0.82rem;
+  line-height:1.6;
+  color:var(--text);
+}
+.feature-item:last-child{border-bottom:none;}
+.feature-icon{font-size:1rem;flex-shrink:0;margin-top:1px;}
+
+/* フッター */
+.footer{
+  text-align:center;
+  padding:32px 16px 0;
+  font-size:0.7rem;
+  color:var(--muted);
+  line-height:2;
+}
+.footer-name{color:var(--green-dark);font-weight:700;}
+
+/* アニメーション */
+@keyframes fadeUp{
+  from{opacity:0;transform:translateY(16px);}
+  to{opacity:1;transform:translateY(0);}
+}
+.hero,.steps,.tool-card,.features,.notice{
+  animation:fadeUp 0.5s ease both;
+}
+.tool-card:nth-child(2){animation-delay:0.1s;}
+.tool-card:nth-child(3){animation-delay:0.2s;}
+
+/* QRカード */
+.qr-wrap{
+  background:#fff;border-radius:16px;
+  padding:20px;
+  box-shadow:0 2px 16px rgba(45,90,39,0.08);
+  margin-bottom:16px;
+}
+.qr-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-top:14px;}
+@media(max-width:480px){.qr-grid{grid-template-columns:1fr;}}
+.qr-card{border-radius:12px;padding:16px;text-align:center;border:2px solid #c8dfc2;}
+.qr-card.green{border-color:#4a8c3f;background:#e8f5e3;}
+.qr-card.teal{border-color:#0F6E56;background:#E1F5EE;}
+.qr-card-title{font-size:0.88rem;font-weight:700;margin-bottom:4px;}
+.qr-card.green .qr-card-title{color:#2d5a27;}
+.qr-card.teal .qr-card-title{color:#0F6E56;}
+.qr-card-desc{font-size:0.72rem;color:#777;line-height:1.6;margin-bottom:10px;}
+.qr-img{
+  background:#fff;border-radius:10px;padding:8px;
+  margin:0 auto 10px;width:100%;max-width:176px;
+  box-shadow:0 1px 6px rgba(0,0,0,0.08);
+  display:block;
+}
+.qr-step{font-size:0.78rem;font-weight:700;margin-bottom:4px;}
+.qr-card.green .qr-step{color:#2d5a27;}
+.qr-card.teal .qr-step{color:#0F6E56;}
+.qr-url{
+  font-size:0.6rem;color:#999;
+  word-break:break-all;
+  background:#f5f5f5;border-radius:6px;
+  padding:4px 6px;margin-top:4px;
+}
+.memo-box{
+  margin-top:14px;
+  background:#e8f5e3;border-radius:10px;
+  padding:12px 14px;
+  font-size:0.78rem;color:#3a6a2a;line-height:1.9;
+}
+.memo-title{font-weight:700;color:#2d5a27;margin-bottom:4px;}
+
+/* 印刷時：2枚（表裏）に収める */
+@media print{
+  body { background: #fff !important; -webkit-print-color-adjust: exact; print-color-adjust: exact; font-size: 0.8rem; }
+
+  /* 省略するセクション */
+  .notice { display: none !important; }
+  .footer { display: none !important; }
+  footer { display: none !important; }
+  .qr-wrap button { display: none !important; }
+
+  /* 1枚目：ヒーロー＋ステップ＋ツールボタン を詰める */
+  .hero { padding: 12px 16px !important; }
+  .hero-title { font-size: 1.1rem !important; }
+  .hero-desc { font-size: 0.65rem !important; }
+  .steps { gap: 4px !important; }
+  .step { padding: 6px 8px !important; }
+  .step-title { font-size: 0.75rem !important; }
+  .step-desc { font-size: 0.62rem !important; line-height: 1.4 !important; }
+  .step-num { width: 20px !important; height: 20px !important; font-size: 0.7rem !important; }
+  .section-label { font-size: 0.72rem !important; margin: 6px 0 4px !important; padding: 4px 0 !important; }
+
+  /* ツールボタンエリアを小さく */
+  [style*="min-height:140px"] { min-height: 80px !important; padding: 12px 8px !important; }
+  [style*="font-size:2.4rem"] { font-size: 1.4rem !important; margin-bottom: 4px !important; }
+  [style*="font-size:0.95rem;font-weight:700;margin-bottom:6px"] { font-size: 0.75rem !important; margin-bottom: 2px !important; }
+  [style*="font-size:0.72rem;opacity"] { font-size: 0.6rem !important; }
+
+  /* 2枚目：特徴＋QRカードを1枚に */
+  .features { page-break-before: always; }
+  .feature-item { padding: 6px 8px !important; gap: 8px !important; }
+  .feature-icon { font-size: 0.9rem !important; }
+  .features > .feature-item > div:last-child { font-size: 0.65rem !important; line-height: 1.4 !important; }
+
+  .qr-wrap { page-break-before: avoid !important; margin-top: 8px !important; padding: 8px !important; }
+  .qr-card { padding: 8px !important; }
+  .qr-card-title { font-size: 0.72rem !important; }
+  .qr-card-desc { font-size: 0.6rem !important; margin-bottom: 4px !important; }
+  .qr-img { width: 80px !important; height: 80px !important; }
+  .qr-step { font-size: 0.62rem !important; }
+  .qr-url { font-size: 0.45rem !important; }
+  .memo-box { padding: 8px !important; font-size: 0.62rem !important; }
+  .memo-title { font-size: 0.7rem !important; }
+}
+</style>
+</head>
+<body>
+
+<div class="hero">
+  <div class="hero-tree">🌳✨</div>
+  <div class="hero-title">職業マトリクス 16分割</div>
+  <div class="hero-sub">就活の木 ｜ キャリ爺監修</div>
+  <div class="hero-desc">
+    🎯 物事への取り組み「成果志向 か プロセス志向 か」<br>
+    🤝 人との関わり方「積極的 か 協調的 か」<br>
+    📊 2つの軸で職業を16のゾーンに分類。<br>
+    🔍 自分に合った仕事の世界をのぞいてみよう！
+  </div>
+</div>
+
+<div class="container">
+
+  <div class="section-label">🌿 使い方・ステップ</div>
+
+  <div class="steps">
+    <div class="step">
+      <div class="step-num">①</div>
+      <div class="step-body">
+        <div class="step-title">📝 30問の診断に答える</div>
+        <div class="step-desc">「16分割マトリクス診断」を開いて、質問に答えてください。自分の座標（4×4の16セルのどこか）が自動で計算されます。</div>
+      </div>
+    </div>
+    <div class="step">
+      <div class="step-num">②</div>
+      <div class="step-body">
+        <div class="step-title">🚀 職業マトリクスへジャンプ</div>
+        <div class="step-desc">結果画面のボタンをクリックすると、「職業マトリクス16分割」に自動でジャンプします。あなたの座標が★赤枠で強調されます。</div>
+      </div>
+    </div>
+    <div class="step">
+      <div class="step-num">③</div>
+      <div class="step-body">
+        <div class="step-title">🔍 職業群をのぞいてみる</div>
+        <div class="step-desc">赤枠のセルをクリックすると112職種の一覧が表示されます。職業名にマウスを当てると仕事の説明が出ます。気になる職業はjobtag（厚生労働省）で詳しく調べられます。</div>
+      </div>
+    </div>
+    <div class="step">
+      <div class="step-num">④</div>
+      <div class="step-body">
+        <div class="step-title">🌳 556職種でさらに深く探す</div>
+        <div class="step-desc">16分割で「だいたいこのあたり」がわかったら、556職種の詳細マップへ。気になる職種を選んで印刷し、jobtag（厚生労働省）で実態を調べてみましょう。</div>
+      </div>
+    </div>
+    <div class="step">
+      <div class="step-num">⑤</div>
+      <div class="step-body">
+        <div class="step-title">🏢 インターン・就職活動へ</div>
+        <div class="step-desc">3年生はインターンシップで実態体験を。4年生はその職種名をマイナビ・リクナビの検索窓に入れて、職種で絞りながら就職活動を進めましょう。</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="section-label">🧰 ツールを開く</div>
+
+  <!-- Step1・Step2：横並び -->
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:12px;">
+
+    <a href="shindan_ver14.html" style="
+      display:flex;flex-direction:column;align-items:center;justify-content:center;
+      background:var(--green-dark);color:#fff;
+      border-radius:16px;padding:24px 16px;
+      text-decoration:none;
+      box-shadow:0 4px 20px rgba(45,90,39,0.25);
+      transition:all 0.18s;
+      text-align:center;
+      min-height:140px;
+    " onmouseover="this.style.transform='translateY(-3px)';this.style.boxShadow='0 8px 28px rgba(45,90,39,0.35)'"
+       onmouseout="this.style.transform='';this.style.boxShadow='0 4px 20px rgba(45,90,39,0.25)'">
+      <div style="font-size:2.4rem;margin-bottom:10px;">🧭</div>
+      <div style="font-size:0.95rem;font-weight:700;margin-bottom:6px;">まず診断を受ける</div>
+      <div style="font-size:0.72rem;opacity:0.85;line-height:1.5;">30問に答えて<br>自分の座標を見つける</div>
+      <div style="margin-top:12px;font-size:0.7rem;background:rgba(255,255,255,0.2);padding:3px 12px;border-radius:10px;">Step 1 →</div>
+    </a>
+
+    <a href="jobmatrix16v4.html" style="
+      display:flex;flex-direction:column;align-items:center;justify-content:center;
+      background:#fff;color:var(--green-dark);
+      border:2.5px solid var(--green-mid);
+      border-radius:16px;padding:24px 16px;
+      text-decoration:none;
+      box-shadow:0 4px 20px rgba(45,90,39,0.1);
+      transition:all 0.18s;
+      text-align:center;
+      min-height:140px;
+    " onmouseover="this.style.transform='translateY(-3px)';this.style.background='var(--green-light)'"
+       onmouseout="this.style.transform='';this.style.background='#fff'">
+      <div style="font-size:2.4rem;margin-bottom:10px;">🗺️</div>
+      <div style="font-size:0.95rem;font-weight:700;margin-bottom:6px;">職業マトリクスを見る</div>
+      <div style="font-size:0.72rem;color:var(--muted);line-height:1.5;">112職種を16ゾーンで<br>直接のぞいてみる</div>
+      <div style="margin-top:12px;font-size:0.7rem;background:var(--green-light);color:var(--green-dark);padding:3px 12px;border-radius:10px;">Step 2 →</div>
+    </a>
+
+  </div>
+
+  <!-- Step3：556職種（全幅） -->
+  <a href="jobmatrix_556.html" style="
+    display:flex;align-items:center;justify-content:space-between;
+    background:linear-gradient(135deg,#2d6b4a,#3d8a5f);color:#d0ede0;
+    border-radius:16px;padding:20px 24px;
+    text-decoration:none;
+    box-shadow:0 4px 20px rgba(45,107,74,0.3);
+    transition:all 0.18s;
+    margin-bottom:16px;
+    position:relative;overflow:hidden;
+  " onmouseover="this.style.transform='translateY(-2px)';this.style.boxShadow='0 8px 28px rgba(45,107,74,0.4)'"
+     onmouseout="this.style.transform='';this.style.boxShadow='0 4px 20px rgba(45,107,74,0.3)'">
+    <div style="position:absolute;right:20px;top:10px;font-size:2.8rem;opacity:0.12;pointer-events:none;">🌳</div>
+    <div>
+      <div style="font-size:0.68rem;color:#6de0b0;font-weight:700;letter-spacing:0.08em;margin-bottom:4px;">Step 3 ▶ さらに深く探したい方へ</div>
+      <div style="font-size:0.95rem;font-weight:700;color:#f0faf5;margin-bottom:4px;">🌳 556職種マトリクスで深掘りする</div>
+      <div style="font-size:0.72rem;color:#a0d8c0;line-height:1.6;">556職種を2軸で可視化。気になる職種を選んで印刷し、<br>jobtag・インターン・就職サイトで次のアクションへ。</div>
+    </div>
+    <div style="flex-shrink:0;margin-left:16px;font-size:0.75rem;background:#d4a843;color:#1a3a2a;font-weight:700;padding:8px 16px;border-radius:20px;white-space:nowrap;">
+      開く →
+    </div>
+  </a>
+
+  <div class="section-label">🌟 このツールの特徴</div>
+
+  <div class="features">
+    <div class="feature-item">
+      <div class="feature-icon">⭐</div>
+      <div>診断結果がそのまま職業マトリクスの座標に飛ぶ。「自分はここ」が一目でわかる。</div>
+    </div>
+    <div class="feature-item">
+      <div class="feature-icon">🗺️</div>
+      <div><strong>16分割マトリクス（Step2）</strong>は112職種を4×4の16ゾーンに分類した「大まかな地図」。まず自分の象限を把握するのに使う。</div>
+    </div>
+    <div class="feature-item">
+      <div class="feature-icon">🌳</div>
+      <div><strong>556職種マトリクス（Step3）</strong>は556職種を同じ2軸で詳しく可視化した「詳細地図」。気になる職種を絞り込んで印刷できる。</div>
+    </div>
+    <div class="feature-item">
+      <div class="feature-icon">🔗</div>
+      <div>全職種に厚生労働省jobtag（職業情報提供サイト）へのリンク付き。仕事の実態・給与・求められるスキルを詳しく調べられる。</div>
+    </div>
+    <div class="feature-item">
+      <div class="feature-icon">💬</div>
+      <div>全職種に仕事の説明文付き（マウスを当てると表示）。リンクがない新興職種にも丁寧な説明あり。</div>
+    </div>
+    <div class="feature-item">
+      <div class="feature-icon">🖨️</div>
+      <div>気になる職種を選んで印刷できる。カウンセリングの場面でも活用できる。</div>
+    </div>
+    <div class="feature-item">
+      <div class="feature-icon">📱</div>
+      <div>スマートフォン・タブレット・PCに対応。自宅でもどこでも使える。</div>
+    </div>
+  </div>
+
+
+
+  
+  <div class="section-label">📱 配布用カード（QRコード付き）</div>
+
+  <div class="qr-wrap qr-print-area">
+    <div style="font-size:0.85rem;font-weight:700;color:var(--green-dark);margin-bottom:4px;">🌳 学生配布用｜QRコードカード</div>
+    <div style="font-size:0.75rem;color:var(--muted);line-height:1.6;">
+      相談室で時間がないときに「家でやってみて！」と手渡せるカードです。印刷してA4またはA5で配布してください。
+    </div>
+
+    <div class="qr-grid" style="grid-template-columns:1fr 1fr 1fr;">
+
+      <div class="qr-card green">
+        <div class="qr-card-title">🧭 まず診断を受けてみよう</div>
+        <div class="qr-card-desc">30問に答えると<br>自分の適職ゾーンがわかる！</div>
+        <img class="qr-img" src="https://api.qrserver.com/v1/create-qr-code/?size=160x160&data=https://tanukin0423.github.io/shokugyo-matrix/shindan_ver14.html&color=2d5a27&bgcolor=ffffff" alt="診断QRコード">
+        <div class="qr-step">Step 1｜診断ツール</div>
+        <div class="qr-url">https://tanukin0423.github.io/shokugyo-matrix/shindan_ver14.html</div>
+      </div>
+
+      <div class="qr-card teal">
+        <div class="qr-card-title">🗺️ 職業マトリクスを見てみよう</div>
+        <div class="qr-card-desc">112職種を16ゾーンで分類<br>気になる職業をのぞいてみよう！</div>
+        <img class="qr-img" src="https://api.qrserver.com/v1/create-qr-code/?size=160x160&data=https://tanukin0423.github.io/shokugyo-matrix/jobmatrix16v4.html&color=0F6E56&bgcolor=ffffff" alt="マトリクスQRコード">
+        <div class="qr-step">Step 2｜職業マトリクス</div>
+        <div class="qr-url">https://tanukin0423.github.io/shokugyo-matrix/jobmatrix16v4.html</div>
+      </div>
+
+      <div class="qr-card" style="border-color:#2d6b4a;background:#e8f5ee;">
+        <div class="qr-card-title" style="color:#2d6b4a;">🌳 556職種で深掘りしよう</div>
+        <div class="qr-card-desc">556職種を2軸で可視化<br>気になる職種を選んで印刷！</div>
+        <img class="qr-img" src="https://api.qrserver.com/v1/create-qr-code/?size=160x160&data=https://tanukin0423.github.io/shokugyo-matrix/jobmatrix_556.html&color=2d6b4a&bgcolor=ffffff" alt="556職種QRコード">
+        <div class="qr-step" style="color:#2d6b4a;">Step 3｜556職種マトリクス</div>
+        <div class="qr-url">https://tanukin0423.github.io/shokugyo-matrix/jobmatrix_556.html</div>
+      </div>
+
+    </div>
+
+    <div class="memo-box">
+      <div class="memo-title">📝 キャリ爺からひとこと</div>
+      🌱 まず「Step 1の診断」を受けてみてください。<br>
+      📊 結果が出たら「Step 2のマトリクス」に自動でジャンプします。<br>
+      🌳 さらに「Step 3の556職種」で気になる職種を選んで印刷してみよう！<br>
+      💬 次の相談のときに、一緒に見てみましょう。
+    </div>
+
+    <div style="text-align:center;margin-top:14px;">
+      <button onclick="window.print()" style="
+        background:var(--green-dark);color:#fff;
+        border:none;border-radius:10px;
+        padding:10px 28px;font-size:0.82rem;font-weight:700;
+        cursor:pointer;font-family:inherit;
+      ">🖨️ このカードを印刷する</button>
+    </div>
+  </div>
+<div class="footer">
+    🌱 就活の木<br>
+    <span class="footer-name">就活コンサルタント「キャリ爺」監修</span><br>
+    キャリアコンサルタント技能士2級<br>
+    🌱「木を育てるように、丁寧に。あなたの就活を支えます。」🌱
+  </div>
+
+</div>
+
+<footer style="
+  width:100%;
+  text-align:center;
+  font-size:0.75em;
+  color:#aaa;
+  margin-top:24px;
+  padding:12px 0 20px;
+  border-top:1px solid #e0e0e0;
+  line-height:2;
+  font-family:'Noto Sans JP',sans-serif;
+">
+  © 2025 就活の木　本ツールの無断複製・転用・二次配布を禁じます。<br>
+  職業情報リンク先：<a href="https://shigoto.mhlw.go.jp/User/" target="_blank" rel="noopener" style="color:#aaa;">job tag（職業情報提供サイト）</a>（厚生労働省）／出典表記に基づきリンク利用
+</footer>
+</body>
+</html>
