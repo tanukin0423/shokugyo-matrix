@@ -136,12 +136,14 @@
       padding: 16px !important;
     }
 
-    /* printContent内の全要素の背景・文字色をリセット */
-    #printContent * {
+    /* printContent内の全要素の背景・文字色をリセット（★spanは除く） */
+    #printContent *:not(.star-colored) {
       background-color: transparent !important;
       color: #111 !important;
       border-color: #ccc !important;
     }
+
+    /* ★の色付きspanはインラインstyleの色をそのまま使う（上書きしない） */
 
     /* テーブルヘッダーだけ薄いグレー背景を維持 */
     #printContent thead tr {
@@ -1640,7 +1642,7 @@ function starsHtml(score, color) {
   const clamped = Math.max(1, Math.min(5, level));
   let s = '';
   for (let i = 1; i <= 5; i++) {
-    s += `<span style="color:${i <= clamped ? color : '#ccc'};font-size:1.1rem;">★</span>`;
+    s += `<span class="star-colored" style="color:${i <= clamped ? color : '#ccc'};font-size:1.1rem;">★</span>`;
   }
   return s;
 }
